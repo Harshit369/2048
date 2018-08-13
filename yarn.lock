@@ -5563,6 +5563,17 @@ mkdirp@*, mkdirp@^0.5.0, mkdirp@^0.5.1, mkdirp@~0.5.1:
   dependencies:
     minimist "0.0.8"
 
+mobx-react@^5.2.3:
+  version "5.2.3"
+  resolved "http://52.35.230.55/mobx-react/-/mobx-react-5.2.3.tgz#cdf6141c2fe63377c5813cbd254e8ce0d4676631"
+  dependencies:
+    hoist-non-react-statics "^2.5.0"
+    react-lifecycles-compat "^3.0.2"
+
+mobx@^5.0.3:
+  version "5.0.3"
+  resolved "http://52.35.230.55/mobx/-/mobx-5.0.3.tgz#53b97f2a0f9b0dd7774c96249f81bf2d513d8e1c"
+
 moment@2.x.x, moment@^2.10.6:
   version "2.22.2"
   resolved "http://52.35.230.55/moment/-/moment-2.22.2.tgz#3c257f9839fc0e93ff53149632239eb90783ff66"
@@ -6471,6 +6482,10 @@ react-google-maps@^7.3.0:
 react-is@^16.3.1, react-is@^16.4.2:
   version "16.4.2"
   resolved "http://52.35.230.55/react-is/-/react-is-16.4.2.tgz#84891b56c2b6d9efdee577cc83501dfc5ecead88"
+
+react-lifecycles-compat@^3.0.2:
+  version "3.0.4"
+  resolved "http://52.35.230.55/react-lifecycles-compat/-/react-lifecycles-compat-3.0.4.tgz#4f1a273afdfc8f3488a8c516bfda78f872352362"
 
 react-native-branch@2.0.0-beta.3:
   version "2.0.0-beta.3"
