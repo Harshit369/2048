@@ -18,8 +18,8 @@
     "suppressImplicitAnyIndexErrors": true,
     "noUnusedLocals": true,
     "skipLibCheck": true,
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "lib": ["es6", "es7", "es2017", "dom"]
   },
-  "exclude": ["*.js", "build", "node_modules"],
-  "compileOnSave": false
+  "exclude": ["*.js", "build", "node_modules"]
 }
