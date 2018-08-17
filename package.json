@@ -1,5 +1,5 @@
 {
-  "name": "create-react-native-ts",
+  "name": "2048",
   "version": "0.1.0",
   "private": true,
   "devDependencies": {
@@ -15,6 +15,7 @@
     "react-native-scripts": "1.14.0",
     "react-test-renderer": "16.3.1",
     "tslint": "^5.11.0",
+    "tslint-config-prettier": "^1.14.0",
     "typescript": "^3.0.1",
     "typings": "^2.1.1"
   },
