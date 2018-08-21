@@ -1,9 +1,9 @@
-import { observable, computed } from "mobx";
+import { observable, computed, action } from 'mobx';
 
-import IPlayBoard from "../../interfaces/playBoard";
-import ITile from "../../interfaces/tile";
+import IPlayBoard from '../../interfaces/playBoard';
+import ITile from '../../interfaces/tile';
 
-import Tile from "./tile";
+import Tile from './tile';
 
 interface ITileAddress {
   i: number;
@@ -11,9 +11,9 @@ interface ITileAddress {
 }
 
 class PlayBoardStore implements IPlayBoard {
-  public gridSize = 4;
+  private gridSize = 4;
 
-  public getNexRandomTile(grid: IPlayBoard["grid"]): ITileAddress {
+  private getNexRandomTile(grid: IPlayBoard['grid']): ITileAddress {
     const emptySlots: ITileAddress[] = [];
     grid.forEach((row, i) => {
       row.forEach((tile, j) => {
@@ -25,13 +25,10 @@ class PlayBoardStore implements IPlayBoard {
     return emptySlots[Math.floor(Math.random() * emptySlots.length)];
   }
 
-  public gertInitialGrid(): IPlayBoard["grid"] {
+  private getInitialGrid(): IPlayBoard['grid'] {
     const grid = new Array(this.gridSize);
     for (let i = 0; i < this.gridSize; i++) {
-      grid[i] = new Array(this.gridSize);
-      for (let j = 0; j < this.gridSize; j++) {
-        grid[i][j] = new Tile();
-      }
+      grid[i] = Array.from(grid, __ => new Tile());
     }
     const { i: x, j: y } = this.getNexRandomTile(grid);
     grid[x][y].power = 1;
@@ -39,7 +36,7 @@ class PlayBoardStore implements IPlayBoard {
   }
 
   @observable
-  public grid = this.gertInitialGrid();
+  public grid = this.getInitialGrid();
 
   @computed
   get totalScore(): number {
@@ -49,6 +46,9 @@ class PlayBoardStore implements IPlayBoard {
     );
     return total;
   }
+
+  @action
+  public swipeLeft(): void {}
 }
 
 export default new PlayBoardStore();

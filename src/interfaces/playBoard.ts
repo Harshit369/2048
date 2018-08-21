@@ -1,9 +1,9 @@
 import ITile from './tile';
 
 interface IPlayBoard {
-  gridSize: number;
   grid: ITile[][];
   totalScore: number;
+  swipeLeft: () => void;
 }
 
 export default IPlayBoard;
