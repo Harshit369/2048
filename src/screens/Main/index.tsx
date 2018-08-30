@@ -1,16 +1,15 @@
-import { observer, inject } from 'mobx-react';
-import * as React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { inject } from "mobx-react";
+import * as React from "react";
+import { StyleSheet, View } from "react-native";
 
-import Grid from '../../components/grid';
-import IPlayBoard from '../../interfaces/playBoard';
+import Grid from "../../components/grid";
+import IPlayBoard from "../../interfaces/playBoard";
 
 interface IProps {
   playBoardStore: IPlayBoard;
 }
 
-@inject('playBoardStore')
-@observer
+@inject("playBoardStore")
 class Main extends React.Component<IProps> {
   public render() {
     const { playBoardStore } = this.props;
@@ -30,20 +29,20 @@ class Main extends React.Component<IProps> {
 const styles = StyleSheet.create({
   mainWrapper: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'space-around',
-    backgroundColor: '#ededed'
+    alignItems: "center",
+    justifyContent: "space-around",
+    backgroundColor: "#ededed"
   },
   scoreBoardWrapper: {
     flex: 1,
-    backgroundColor: '#fff'
+    backgroundColor: "#fff"
   },
   gridWrapper: {
     height: 300,
     width: 300,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'pink'
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "pink"
   }
 });
 

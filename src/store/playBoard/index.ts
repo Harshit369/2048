@@ -13,7 +13,7 @@ interface ITileAddress {
   j: number;
 }
 
-const getNextRandomTile = (grid: IGrid): ITileAddress => {
+const getNextRandomTile = (grid: IGrid): ITileAddress | null => {
   const emptySlots: ITileAddress[] = [];
   grid.forEach((row, i) => {
     row.forEach((tile, j) => {
@@ -22,7 +22,9 @@ const getNextRandomTile = (grid: IGrid): ITileAddress => {
       }
     });
   });
-  return emptySlots[Math.floor(Math.random() * emptySlots.length)];
+  return emptySlots.length
+    ? emptySlots[Math.floor(Math.random() * emptySlots.length)]
+    : null;
 };
 
 class PlayBoardStore implements IPlayBoard {
@@ -33,13 +35,27 @@ class PlayBoardStore implements IPlayBoard {
     return Array.from(sizeRow, () => new Tile());
   };
 
-  private getInitialGrid(): IGrid {
+  private getNewEmptyGrid = (): IGrid => {
     const sizeRow = Array(this.gridSize).fill(null);
-    const grid: IGrid = Array.from(sizeRow, () =>
-      this.getNewRow(sizeRow.length)
-    );
-    const { i: x, j: y } = getNextRandomTile(grid);
-    grid[x][y].power = 1;
+    return Array.from(sizeRow, () => this.getNewRow(sizeRow.length));
+  };
+
+  private transposeGrid = (grid: IGrid): IGrid => {
+    const emptyTp = this.getNewEmptyGrid();
+    grid.forEach((row, i) => {
+      grid[i].forEach((tile, j) => {
+        emptyTp[j][i] = tile;
+      });
+    });
+    return emptyTp;
+  };
+
+  private getInitialGrid(): IGrid {
+    const grid = this.getNewEmptyGrid();
+    const address = getNextRandomTile(grid);
+    if (address) {
+      grid[address.i][address.j].power = 1;
+    }
     return grid;
   }
 
@@ -57,11 +73,19 @@ class PlayBoardStore implements IPlayBoard {
         newrow[n].power = row[r].power;
         r++;
       } else {
-        newrow[n].power = newrow[n].power + row[r].power;
+        newrow[n].power += 1;
         r++;
       }
     }
     return newrow;
+  }
+
+  private addNewRandomTile(grid: IGrid): void {
+    const address = getNextRandomTile(grid);
+    if (address) {
+      grid[address.i][address.j].power = 1;
+    }
+    this.grid = grid;
   }
 
   @observable
@@ -77,11 +101,38 @@ class PlayBoardStore implements IPlayBoard {
   }
 
   @action
-  public swipeLeft(): void {
-    debugger;
+  public swipeLeft = (): void => {
     const newGrid = this.grid.map(row => this.fragmentRow(row));
-    this.grid = newGrid;
-  }
+    this.addNewRandomTile(newGrid);
+  };
+
+  @action
+  public swipeRight = (): void => {
+    const newGrid = this.grid.map(row =>
+      this.fragmentRow(row.slice().reverse()).reverse()
+    );
+    this.addNewRandomTile(newGrid);
+  };
+
+  @action
+  public swipeUp = (): void => {
+    const transposedGrid = this.transposeGrid(this.grid);
+    const newGrid = this.transposeGrid(
+      transposedGrid.map(row => this.fragmentRow(row))
+    );
+    this.addNewRandomTile(newGrid);
+  };
+
+  @action
+  public swipeDown = (): void => {
+    const transposedGrid = this.transposeGrid(this.grid);
+    const newGrid = this.transposeGrid(
+      transposedGrid.map(row =>
+        this.fragmentRow(row.slice().reverse()).reverse()
+      )
+    );
+    this.addNewRandomTile(newGrid);
+  };
 }
 
 export default new PlayBoardStore();

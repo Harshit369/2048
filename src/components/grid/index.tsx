@@ -1,9 +1,10 @@
-import * as React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { observer } from "mobx-react";
+import * as React from "react";
+import { View, StyleSheet } from "react-native";
 
-import IPlayBoard from '../../interfaces/playBoard';
-import ITile from '../../interfaces/tile';
-import Tile from '../tile';
+import IPlayBoard from "../../interfaces/playBoard";
+import ITile from "../../interfaces/tile";
+import Tile from "../tile";
 
 interface IRowProps {
   tiles: ITile[];
@@ -23,6 +24,7 @@ const Row: React.SFC<IRowProps> = ({ tiles }) => {
   );
 };
 
+@observer
 class Grid extends React.Component<IGridProps> {
   public render() {
     const {
@@ -41,17 +43,17 @@ class Grid extends React.Component<IGridProps> {
 const styles = StyleSheet.create({
   grid: {
     flex: 1,
-    width: '100%',
-    alignItems: 'center',
-    backgroundColor: 'cyan',
-    justifyContent: 'center',
-    flexWrap: 'nowrap'
+    width: "100%",
+    alignItems: "center",
+    backgroundColor: "cyan",
+    justifyContent: "center",
+    flexWrap: "nowrap"
   },
   row: {
-    height: '25%',
-    width: '100%',
-    flexDirection: 'row',
-    backgroundColor: 'green'
+    height: "25%",
+    width: "100%",
+    flexDirection: "row",
+    backgroundColor: "green"
   }
 });
 
