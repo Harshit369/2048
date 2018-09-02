@@ -1,6 +1,12 @@
 import { inject } from "mobx-react";
 import * as React from "react";
-import { StyleSheet, View } from "react-native";
+import {
+  StyleSheet,
+  View,
+  PanResponder,
+  PanResponderInstance,
+  PanResponderGestureState
+} from "react-native";
 
 import Grid from "../../components/grid";
 import IPlayBoard from "../../interfaces/playBoard";
@@ -11,6 +17,38 @@ interface IProps {
 
 @inject("playBoardStore")
 class Main extends React.Component<IProps> {
+  private panResponder: PanResponderInstance;
+
+  private bindSwipeToAction = ({ dx, dy }: PanResponderGestureState) => {
+    const { playBoardStore } = this.props;
+    const swipeAxis = Math.abs(dx) > Math.abs(dy) ? "x" : "y";
+    if (swipeAxis === "x") {
+      if (dx > 0) {
+        playBoardStore.swipeRight();
+      } else {
+        playBoardStore.swipeLeft();
+      }
+    } else {
+      if (dy > 0) {
+        playBoardStore.swipeDown();
+      } else {
+        playBoardStore.swipeUp();
+      }
+    }
+  };
+
+  public componentWillMount() {
+    this.panResponder = PanResponder.create({
+      onStartShouldSetPanResponder: (evt, gestureState) => true,
+      onStartShouldSetPanResponderCapture: (evt, gestureState) => true,
+      onMoveShouldSetPanResponder: (evt, gestureState) => true,
+      onMoveShouldSetPanResponderCapture: (evt, gestureState) => true,
+      onPanResponderRelease: (e, gestureState) => {
+        this.bindSwipeToAction(gestureState);
+      }
+    });
+  }
+
   public render() {
     const { playBoardStore } = this.props;
     return (
@@ -18,7 +56,7 @@ class Main extends React.Component<IProps> {
         {/* <View style={styles.scoreBoardWrapper}>
           
         </View> */}
-        <View style={styles.gridWrapper}>
+        <View style={styles.gridWrapper} {...this.panResponder.panHandlers}>
           <Grid playBoardStore={playBoardStore} />
         </View>
       </View>

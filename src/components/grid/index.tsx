@@ -28,10 +28,10 @@ const Row: React.SFC<IRowProps> = ({ tiles }) => {
 class Grid extends React.Component<IGridProps> {
   public render() {
     const {
-      playBoardStore: { grid, swipeLeft }
+      playBoardStore: { grid }
     } = this.props;
     return (
-      <View style={styles.grid} onTouchEnd={swipeLeft}>
+      <View style={styles.grid}>
         {grid.map((row, i) => (
           <Row tiles={row} key={i} />
         ))}
