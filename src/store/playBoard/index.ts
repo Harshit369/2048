@@ -1,11 +1,11 @@
-import { observable, computed, action } from "mobx";
+import { observable, computed, action } from 'mobx';
 
-import IPlayBoard from "../../interfaces/playBoard";
-import ITile from "../../interfaces/tile";
+import IPlayBoard from '../../interfaces/playBoard';
+import ITile from '../../interfaces/tile';
 
-import Tile from "./tile";
+import Tile from './tile';
 
-type IGrid = IPlayBoard["grid"];
+type IGrid = IPlayBoard['grid'];
 type IRow = ITile[];
 
 interface ITileAddress {
@@ -98,6 +98,12 @@ class PlayBoardStore implements IPlayBoard {
       row.forEach((tile: ITile) => (total += tile.score || 0))
     );
     return total;
+  }
+
+  @computed
+  get highScore(): number {
+    const highScore = 2;
+    return this.totalScore > highScore ? this.totalScore : highScore;
   }
 
   @action
