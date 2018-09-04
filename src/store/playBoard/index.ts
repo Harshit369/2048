@@ -27,6 +27,18 @@ const getNextRandomTile = (grid: IGrid): ITileAddress | null => {
     : null;
 };
 
+const isEqual = (grid1: IGrid, grid2: IGrid): boolean => {
+  let equal = true;
+  grid1.forEach((row, i) => {
+    row.forEach((tile, j) => {
+      if (tile.power !== grid2[i][j].power) {
+        equal = false;
+      }
+    });
+  });
+  return equal;
+};
+
 class PlayBoardStore implements IPlayBoard {
   private gridSize = 4;
 
@@ -59,8 +71,9 @@ class PlayBoardStore implements IPlayBoard {
     return grid;
   }
 
-  private fragmentRow(row: IRow): IRow {
+  private fragmentRow(row: IRow): { row: IRow; score: number } {
     const newrow = this.getNewRow(row.length);
+    let score = 0;
     let r = 0;
     let n = 0;
     while (r < row.length && n < newrow.length) {
@@ -74,13 +87,20 @@ class PlayBoardStore implements IPlayBoard {
         r++;
       } else {
         newrow[n].power += 1;
+        score += newrow[n].score || 0;
         r++;
       }
     }
-    return newrow;
+    return {
+      row: newrow,
+      score
+    };
   }
 
   private addNewRandomTile(grid: IGrid): void {
+    if (isEqual(this.grid, grid)) {
+      return;
+    }
     const address = getNextRandomTile(grid);
     if (address) {
       grid[address.i][address.j].power = 1;
@@ -89,16 +109,10 @@ class PlayBoardStore implements IPlayBoard {
   }
 
   @observable
-  public grid = this.getInitialGrid();
+  public grid: IGrid = this.getInitialGrid();
 
-  @computed
-  get totalScore(): number {
-    let total: number = 0;
-    this.grid.forEach(row =>
-      row.forEach((tile: ITile) => (total += tile.score || 0))
-    );
-    return total;
-  }
+  @observable
+  public totalScore: number = 0;
 
   @computed
   get highScore(): number {
@@ -108,35 +122,55 @@ class PlayBoardStore implements IPlayBoard {
 
   @action
   public swipeLeft = (): void => {
-    const newGrid = this.grid.map(row => this.fragmentRow(row));
+    let scoreIncrement = 0;
+    const newGrid = this.grid.map(row => {
+      const { row: newrow, score } = this.fragmentRow(row);
+      scoreIncrement += score;
+      return newrow;
+    });
+    this.totalScore += scoreIncrement;
     this.addNewRandomTile(newGrid);
   };
 
   @action
   public swipeRight = (): void => {
-    const newGrid = this.grid.map(row =>
-      this.fragmentRow(row.slice().reverse()).reverse()
-    );
+    let scoreIncrement = 0;
+    const newGrid = this.grid.map(row => {
+      const { row: newrow, score } = this.fragmentRow(row.slice().reverse());
+      scoreIncrement += score;
+      return newrow.reverse();
+    });
+    this.totalScore += scoreIncrement;
     this.addNewRandomTile(newGrid);
   };
 
   @action
   public swipeUp = (): void => {
+    let scoreIncrement = 0;
     const transposedGrid = this.transposeGrid(this.grid);
     const newGrid = this.transposeGrid(
-      transposedGrid.map(row => this.fragmentRow(row))
+      transposedGrid.map(row => {
+        const { row: newrow, score } = this.fragmentRow(row);
+        scoreIncrement += score;
+        return newrow;
+      })
     );
+    this.totalScore += scoreIncrement;
     this.addNewRandomTile(newGrid);
   };
 
   @action
   public swipeDown = (): void => {
+    let scoreIncrement = 0;
     const transposedGrid = this.transposeGrid(this.grid);
     const newGrid = this.transposeGrid(
-      transposedGrid.map(row =>
-        this.fragmentRow(row.slice().reverse()).reverse()
-      )
+      transposedGrid.map(row => {
+        const { row: newrow, score } = this.fragmentRow(row.slice().reverse());
+        scoreIncrement += score;
+        return newrow.reverse();
+      })
     );
+    this.totalScore += scoreIncrement;
     this.addNewRandomTile(newGrid);
   };
 }
