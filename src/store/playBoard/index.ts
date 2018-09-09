@@ -1,11 +1,12 @@
-import { observable, computed, action } from 'mobx';
+import { observable, computed, action, autorun, IReactionDisposer } from "mobx";
+import { AsyncStorage } from "react-native";
 
-import IPlayBoard from '../../interfaces/playBoard';
-import ITile from '../../interfaces/tile';
+import IPlayBoard from "../../interfaces/playBoard";
+import ITile from "../../interfaces/tile";
 
-import Tile from './tile';
+import Tile from "./tile";
 
-type IGrid = IPlayBoard['grid'];
+type IGrid = IPlayBoard["grid"];
 type IRow = ITile[];
 
 interface ITileAddress {
@@ -39,8 +40,33 @@ const isEqual = (grid1: IGrid, grid2: IGrid): boolean => {
   return equal;
 };
 
+// maon playboard store class
 class PlayBoardStore implements IPlayBoard {
+  constructor() {
+    this.updateLocalStorage();
+  }
+
+  private localStorageDisposer: IReactionDisposer;
+
   private gridSize = 4;
+
+  private updateLocalStorage = (): void => {
+    this.localStorageDisposer = autorun(
+      () => {
+        AsyncStorage.setItem(
+          "currentGame",
+          JSON.stringify({
+            grid: this.grid,
+            totalScore: this.totalScore
+          })
+        );
+      },
+      {
+        name: "localStorageUpdate",
+        delay: 300
+      }
+    );
+  };
 
   private getNewRow = (length: number): IRow => {
     const sizeRow = Array(length).fill(null);
@@ -107,6 +133,10 @@ class PlayBoardStore implements IPlayBoard {
     }
     this.grid = grid;
   }
+
+  public disconnectLocalStorage = (): void => {
+    this.localStorageDisposer();
+  };
 
   @observable
   public grid: IGrid = this.getInitialGrid();

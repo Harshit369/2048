@@ -7,11 +7,14 @@ const DEFAULT_STYLE = "color: #006d92; font-weight:bold;";
 // - collapsed: true   -> shows the log collapsed
 // - style             -> the style applied to the action description
 const startLogging = ({
-  collapsed,
+  collapsed = true,
   style
-}: { collapsed?: boolean; style?: string } = {}) => {
+}: {
+  collapsed?: boolean;
+  style?: string;
+} = {}) => {
   spy(event => {
-    if (event.type === "action") {
+    if (["action"].includes(event.type)) {
       if (collapsed) {
         // tslint:disable-next-line:no-console
         console.groupCollapsed(
@@ -26,7 +29,7 @@ const startLogging = ({
       // tslint:disable-next-line:no-console
       console.log("%cName: ", style || DEFAULT_STYLE, event.name);
       // tslint:disable-next-line:no-console
-      console.log("%cTarget: ", style || DEFAULT_STYLE, event.target);
+      console.log("%cTarget: ", style || DEFAULT_STYLE, event.object);
       // tslint:disable-next-line:no-console
       console.log("%cArguments: ", style || DEFAULT_STYLE, event.arguments);
       // tslint:disable-next-line:no-console
