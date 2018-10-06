@@ -1,4 +1,4 @@
-import ITile from './tile';
+import ITile from "./tile";
 
 interface IPlayBoard {
   grid: ITile[][];
@@ -8,6 +8,7 @@ interface IPlayBoard {
   swipeRight: () => void;
   swipeUp: () => void;
   swipeDown: () => void;
+  reset: () => void;
 }
 
 export default IPlayBoard;

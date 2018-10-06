@@ -1,5 +1,5 @@
 import { observable, computed, action, autorun, IReactionDisposer } from "mobx";
-import { AsyncStorage } from "react-native";
+import { AsyncStorage, Alert } from "react-native";
 
 import IPlayBoard from "../../interfaces/playBoard";
 import ITile from "../../interfaces/tile";
@@ -14,7 +14,7 @@ interface ITileAddress {
   j: number;
 }
 
-const getNextRandomTile = (grid: IGrid): ITileAddress | null => {
+const getEmptySlots = (grid: IGrid): ITileAddress[] => {
   const emptySlots: ITileAddress[] = [];
   grid.forEach((row, i) => {
     row.forEach((tile, j) => {
@@ -23,8 +23,16 @@ const getNextRandomTile = (grid: IGrid): ITileAddress | null => {
       }
     });
   });
+  return emptySlots;
+};
+
+const getRandomNumber = (max: number): number =>
+  Math.floor(Math.random() * max);
+
+const getNextRandomTile = (grid: IGrid): ITileAddress | null => {
+  const emptySlots: ITileAddress[] = getEmptySlots(grid);
   return emptySlots.length
-    ? emptySlots[Math.floor(Math.random() * emptySlots.length)]
+    ? emptySlots[getRandomNumber(emptySlots.length)]
     : null;
 };
 
@@ -40,7 +48,24 @@ const isEqual = (grid1: IGrid, grid2: IGrid): boolean => {
   return equal;
 };
 
-// maon playboard store class
+const isDeadLock = (grid: IGrid): boolean => {
+  const size = grid.length;
+  let gameOver = true;
+  grid.forEach((row, i) => {
+    row.forEach((tile, j) => {
+      [[i, j - 1], [i + 1, j], [i, j + 1], [i - 1, j]].forEach(([x, y]) => {
+        if (x < size && x > -1 && y < size && y > -1) {
+          if (grid[i][j].power === grid[x][y].power) {
+            gameOver = false;
+          }
+        }
+      });
+    });
+  });
+  return gameOver;
+};
+
+// main playboard store class
 class PlayBoardStore implements IPlayBoard {
   constructor() {
     this.updateLocalStorage();
@@ -66,6 +91,10 @@ class PlayBoardStore implements IPlayBoard {
         delay: 300
       }
     );
+  };
+
+  public disconnectLocalStorage = (): void => {
+    this.localStorageDisposer();
   };
 
   private getNewRow = (length: number): IRow => {
@@ -97,6 +126,15 @@ class PlayBoardStore implements IPlayBoard {
     return grid;
   }
 
+  private checkDeadLock(): void {
+    if (isDeadLock(this.grid)) {
+      Alert.alert("Game over!", "You want to restart?", [
+        { text: "Cancel", style: "cancel" },
+        { text: "Restart", onPress: () => this.reset() }
+      ]);
+    }
+  }
+
   private fragmentRow(row: IRow): { row: IRow; score: number } {
     const newrow = this.getNewRow(row.length);
     let score = 0;
@@ -123,20 +161,24 @@ class PlayBoardStore implements IPlayBoard {
     };
   }
 
+  // this is the functionthat finally sets the main grid with new random tile.
   private addNewRandomTile(grid: IGrid): void {
+    const emptySlots = getEmptySlots(grid);
     if (isEqual(this.grid, grid)) {
-      return;
+      if (!emptySlots.length) {
+        this.checkDeadLock();
+      }
+    } else {
+      if (emptySlots.length) {
+        const address = emptySlots[getRandomNumber(emptySlots.length)];
+        grid[address.i][address.j].power = 1;
+        this.grid = grid;
+        if (emptySlots.length === 1) {
+          this.checkDeadLock();
+        }
+      }
     }
-    const address = getNextRandomTile(grid);
-    if (address) {
-      grid[address.i][address.j].power = 1;
-    }
-    this.grid = grid;
   }
-
-  public disconnectLocalStorage = (): void => {
-    this.localStorageDisposer();
-  };
 
   @observable
   public grid: IGrid = this.getInitialGrid();
@@ -202,6 +244,12 @@ class PlayBoardStore implements IPlayBoard {
     );
     this.totalScore += scoreIncrement;
     this.addNewRandomTile(newGrid);
+  };
+
+  @action
+  public reset = (): void => {
+    this.grid = this.getInitialGrid();
+    this.totalScore = 0;
   };
 }
 
